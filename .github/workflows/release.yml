@@ -7,11 +7,15 @@ name: Build desktop installers
 # Задайте его в Settings → Secrets and variables → Actions → Variables как
 # репозиторную переменную VITE_API_URL (например https://api.buildhub.example.com).
 
+# Запуск только вручную: инсталляторы нужно собирать ПОСЛЕ деплоя бэкенда и
+# установки переменной VITE_API_URL, иначе в сборку попадёт неверный адрес API.
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
+    inputs:
+      tag:
+        description: "Release tag to attach installers to (e.g. v0.5.0)"
+        required: true
+        default: "v0.5.0"
 
 jobs:
   build:
@@ -68,9 +72,9 @@ jobs:
           # WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         with:
           projectPath: client
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', github.run_number) }}
-          releaseName: "BuildHub ${{ github.ref_type == 'tag' && github.ref_name || github.run_number }}"
+          tagName: ${{ github.event.inputs.tag }}
+          releaseName: "BuildHub ${{ github.event.inputs.tag }}"
           releaseBody: "Desktop installers for macOS and Windows."
           releaseDraft: true
-          prerelease: true
+          prerelease: false
           args: ${{ matrix.args }}
