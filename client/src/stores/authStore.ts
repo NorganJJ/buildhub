@@ -17,10 +17,10 @@ export interface User {
 interface AuthState {
   user: User | null
   accessToken: string | null
-  refreshToken: string | null
-  setAuth: (user: User, accessToken: string, refreshToken: string) => void
+  // refresh-токен хранится в httpOnly cookie на сервере — не в JS (защита от XSS-кражи).
+  setAuth: (user: User, accessToken: string) => void
   setUser: (user: User) => void
-  setTokens: (accessToken: string, refreshToken: string) => void
+  setAccessToken: (accessToken: string) => void
   logout: () => void
   isAuthenticated: () => boolean
 }
@@ -30,12 +30,10 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       accessToken: null,
-      refreshToken: null,
-      setAuth: (user, accessToken, refreshToken) =>
-        set({ user, accessToken, refreshToken }),
+      setAuth: (user, accessToken) => set({ user, accessToken }),
       setUser: (user) => set({ user }),
-      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
-      logout: () => set({ user: null, accessToken: null, refreshToken: null }),
+      setAccessToken: (accessToken) => set({ accessToken }),
+      logout: () => set({ user: null, accessToken: null }),
       isAuthenticated: () => !!get().user && !!get().accessToken,
     }),
     {
@@ -43,7 +41,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
       }),
     }
   )

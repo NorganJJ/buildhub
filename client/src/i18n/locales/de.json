@@ -107,7 +107,8 @@
     "viewProfile": "Profil ansehen",
     "metaPublished": "Veröffentlicht",
     "metaUpdated": "Aktualisiert",
-    "signInToDownload": "zum Herunterladen von Dateien"
+    "signInToDownload": "zum Herunterladen von Dateien",
+    "downloadFailed": "Download konnte nicht gestartet werden"
   },
   "comments": {
     "title": "Kommentare",
@@ -319,7 +320,17 @@
     "appearanceTitle": "Darstellung",
     "appearanceSubtitle": "Wähle das Design der Oberfläche. Dunkel ist Standard.",
     "themeDark": "Dunkel",
-    "themeLight": "Hell"
+    "themeLight": "Hell",
+    "dangerTitle": "Gefahrenzone",
+    "dangerSubtitle": "Unumkehrbare Aktionen. Mit Vorsicht fortfahren.",
+    "deleteAccount": "Konto löschen",
+    "deleteAccountHint": "Konto, Projekte und Dateien dauerhaft entfernen.",
+    "deleteConfirmWarning": "Dies löscht dein Konto, alle Projekte, Dateien und Kommentare dauerhaft. Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirmPrompt": "Gib deinen Benutzernamen {{username}} ein, um zu bestätigen.",
+    "deleteAccountConfirm": "Endgültig löschen",
+    "deleting": "Wird gelöscht…",
+    "accountDeleted": "Konto gelöscht",
+    "accountDeleteFailed": "Konto konnte nicht gelöscht werden"
   },
   "auth": {
     "continueGithub": "Mit GitHub fortfahren",
@@ -423,5 +434,15 @@
     "accountCreated": "Konto erstellt! Willkommen 🚀",
     "welcomeBack": "Willkommen zurück!",
     "loadUserFailed": "Benutzerdaten konnten nicht geladen werden"
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Fehler gefunden oder eine Frage? Schreib mir direkt auf Telegram.",
+    "writeTelegram": "Auf Telegram schreiben ({{handle}})",
+    "templateLabel": "Vorlage für Fehlerbericht",
+    "template": "An {{handle}} auf Telegram senden\n\nBuildHub — Fehlerbericht\n\nApp-Version: \nPlattform (Windows / macOS / Linux / Web): \nWas ich getan habe: \nWas ich erwartet habe: \nWas tatsächlich passiert ist: \nFehlertext (falls vorhanden): ",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Konnte nicht kopieren"
   }
 }

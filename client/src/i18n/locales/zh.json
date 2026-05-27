@@ -104,7 +104,8 @@
     "viewProfile": "查看主页",
     "metaPublished": "发布",
     "metaUpdated": "更新",
-    "signInToDownload": "以下载文件"
+    "signInToDownload": "以下载文件",
+    "downloadFailed": "无法开始下载"
   },
   "comments": {
     "title": "评论",
@@ -309,7 +310,17 @@
     "appearanceTitle": "外观",
     "appearanceSubtitle": "选择界面主题。深色为默认。",
     "themeDark": "深色",
-    "themeLight": "浅色"
+    "themeLight": "浅色",
+    "dangerTitle": "危险区域",
+    "dangerSubtitle": "不可逆操作，请谨慎操作。",
+    "deleteAccount": "删除账户",
+    "deleteAccountHint": "永久删除您的账户、项目和文件。",
+    "deleteConfirmWarning": "这将永久删除您的账户、所有项目、文件和评论，且无法恢复。",
+    "deleteConfirmPrompt": "请输入您的用户名 {{username}} 以确认。",
+    "deleteAccountConfirm": "永久删除",
+    "deleting": "正在删除…",
+    "accountDeleted": "账户已删除",
+    "accountDeleteFailed": "删除账户失败"
   },
   "auth": {
     "continueGithub": "使用 GitHub 继续",
@@ -413,5 +424,15 @@
     "accountCreated": "账号已创建！欢迎 🚀",
     "welcomeBack": "欢迎回来！",
     "loadUserFailed": "加载用户数据失败"
+  },
+  "support": {
+    "title": "支持",
+    "intro": "发现了问题或有疑问？请直接在 Telegram 上联系我。",
+    "writeTelegram": "在 Telegram 上联系 ({{handle}})",
+    "templateLabel": "错误报告模板",
+    "template": "发送给 Telegram 上的 {{handle}}\n\nBuildHub — 错误报告\n\n应用版本：\n平台（Windows / macOS / Linux / Web）：\n我做了什么：\n我期望的结果：\n实际发生的情况：\n错误信息（如有）：",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFailed": "复制失败"
   }
 }

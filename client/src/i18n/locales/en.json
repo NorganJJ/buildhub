@@ -107,7 +107,8 @@
     "viewProfile": "View profile",
     "metaPublished": "Published",
     "metaUpdated": "Updated",
-    "signInToDownload": "to download files"
+    "signInToDownload": "to download files",
+    "downloadFailed": "Couldn't start download"
   },
   "comments": {
     "title": "Comments",
@@ -319,7 +320,17 @@
     "appearanceTitle": "Appearance",
     "appearanceSubtitle": "Choose the interface theme. Dark is the default.",
     "themeDark": "Dark",
-    "themeLight": "Light"
+    "themeLight": "Light",
+    "dangerTitle": "Danger zone",
+    "dangerSubtitle": "Irreversible actions. Proceed with caution.",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "Permanently remove your account, projects and files.",
+    "deleteConfirmWarning": "This will permanently delete your account, all your projects, files and comments. This cannot be undone.",
+    "deleteConfirmPrompt": "Type your username {{username}} to confirm.",
+    "deleteAccountConfirm": "Delete forever",
+    "deleting": "Deleting…",
+    "accountDeleted": "Account deleted",
+    "accountDeleteFailed": "Couldn't delete account"
   },
   "auth": {
     "continueGithub": "Continue with GitHub",
@@ -423,5 +434,15 @@
     "accountCreated": "Account created! Welcome 🚀",
     "welcomeBack": "Welcome back!",
     "loadUserFailed": "Failed to load user data"
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Found a bug or have a question? Message me directly on Telegram.",
+    "writeTelegram": "Write on Telegram ({{handle}})",
+    "templateLabel": "Bug report template",
+    "template": "Send to {{handle}} on Telegram\n\nBuildHub — bug report\n\nApp version: \nPlatform (Windows / macOS / Linux / Web): \nWhat I did: \nWhat I expected: \nWhat actually happened: \nError text (if any): ",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Couldn't copy"
   }
 }

@@ -3,7 +3,7 @@ import { useAuthStore } from '../stores/authStore'
 
 export async function login(email: string, password: string) {
   const { data } = await api.post('/auth/login', { email, password })
-  return data as { user: any; accessToken: string; refreshToken: string }
+  return data as { user: any; accessToken: string }
 }
 
 export async function register(
@@ -22,9 +22,9 @@ export async function resendVerification(email: string) {
 }
 
 export async function logout() {
-  const refreshToken = useAuthStore.getState().refreshToken
+  // refresh-токен очистит сервер (httpOnly cookie); тело не нужно
   try {
-    await api.post('/auth/logout', { refreshToken })
-  } catch {}
+    await api.post('/auth/logout', {})
+  } catch { /* ignore */ }
   useAuthStore.getState().logout()
 }

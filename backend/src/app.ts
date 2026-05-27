@@ -1,6 +1,8 @@
 import Fastify, { FastifyInstance } from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
+import cookie from '@fastify/cookie'
+import helmet from '@fastify/helmet'
 import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import staticFiles from '@fastify/static'
@@ -8,6 +10,7 @@ import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import path from 'path'
 import fs from 'fs'
+import { assertSecrets } from './services/security'
 
 import { authRoutes } from './routes/auth'
 import { userRoutes } from './routes/users'
@@ -20,10 +23,27 @@ import { versionRoutes } from './routes/versions'
 import { errorHandler } from './middleware/errorHandler'
 
 export async function buildApp(): Promise<FastifyInstance> {
+  // Отказываемся стартовать в проде со слабыми секретами
+  assertSecrets()
+
   const app = Fastify({
     logger: process.env.NODE_ENV === 'development'
       ? { transport: { target: 'pino-pretty' } }
       : true,
+    // Лимит тела для не-multipart запросов (JSON). Загрузки идут через multipart
+    // со своим лимитом fileSize.
+    bodyLimit: 1024 * 1024, // 1 MB
+  })
+
+  // Security headers (helmet). CSP для SPA задаётся на стороне хостинга/nginx —
+  // здесь CSP отключаем, чтобы не ломать Swagger UI; остальные заголовки включены.
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    // Разрешаем кросс-доменную загрузку картинок/файлов (клиент на другом порту/домене)
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    hsts: { maxAge: 15552000, includeSubDomains: true }, // действует только по HTTPS
+    referrerPolicy: { policy: 'no-referrer' },
   })
 
   // CORS
@@ -31,6 +51,9 @@ export async function buildApp(): Promise<FastifyInstance> {
     origin: process.env.CLIENT_URL || 'http://localhost:1420',
     credentials: true,
   })
+
+  // Cookies (refresh-токен в httpOnly cookie, oauth state)
+  await app.register(cookie)
 
   // JWT
   await app.register(jwt, {

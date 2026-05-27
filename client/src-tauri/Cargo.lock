@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "buildhub"
-version = "0.4.5-beta"
+version = "0.4.9-beta"
 dependencies = [
  "serde",
  "serde_json",

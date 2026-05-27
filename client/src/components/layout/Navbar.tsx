@@ -7,6 +7,7 @@ import { BuildHubLogo } from '../Logo'
 import { avatarGradient } from '../../utils/gradient'
 import { mediaUrl } from '../../utils/mediaUrl'
 import { handleExternalClick } from '../../utils/openExternal'
+import SupportButton from './SupportButton'
 import toast from 'react-hot-toast'
 
 const BOOSTY_URL = 'https://boosty.to/norganjj'
@@ -39,6 +40,7 @@ export default function Navbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <SupportButton />
           <a href={BOOSTY_URL} target="_blank" rel="noreferrer" onClick={handleExternalClick(BOOSTY_URL)}
             title={t('footer.support')}
             className="w-9 h-9 rounded-lg hover:bg-gray-900 text-gray-400 hover:text-brand-400 flex items-center justify-center transition-colors">

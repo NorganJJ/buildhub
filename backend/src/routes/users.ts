@@ -66,6 +66,37 @@ export async function userRoutes(app: FastifyInstance) {
     return reply.send(user)
   })
 
+  // DELETE /api/users/me — удаление аккаунта и всех данных (GDPR)
+  app.delete('/me', { preHandler: authenticate }, async (req, reply) => {
+    const userId = (req as any).userId
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { projects: { select: { id: true } } },
+    })
+    if (!user) return reply.status(404).send({ error: 'User not found' })
+
+    const uploadsRoot = path.resolve(process.env.STORAGE_LOCAL_PATH || './uploads')
+    const safeRm = (p: string) => {
+      try {
+        const abs = path.resolve(p)
+        if (abs.startsWith(uploadsRoot + path.sep)) fs.rmSync(abs, { recursive: true, force: true })
+      } catch (e) { req.log.error(e) }
+    }
+    // Файлы проектов (дистрибутивы + изображения) с диска
+    for (const p of user.projects) {
+      safeRm(path.join(uploadsRoot, p.id))
+      safeRm(path.join(uploadsRoot, 'projects', p.id))
+    }
+    // Аватар
+    if (user.avatarUrl?.startsWith('/uploads/')) {
+      safeRm(path.join(uploadsRoot, user.avatarUrl.replace(/^\/uploads\//, '')))
+    }
+
+    // Каскадно удаляет проекты, файлы, голоса, комментарии, oauth, refresh-токены
+    await prisma.user.delete({ where: { id: userId } })
+    return reply.send({ success: true })
+  })
+
   // POST /api/users/me/avatar — загрузка аватара
   app.post('/me/avatar', { preHandler: authenticate }, async (req, reply) => {
     const userId = (req as any).userId

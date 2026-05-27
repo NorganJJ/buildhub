@@ -8,6 +8,8 @@
 
 Fastify · Prisma · PostgreSQL · React · Vite · Tauri · Tailwind CSS
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 </div>
 
 ---
@@ -190,3 +192,7 @@ npm run tauri:build   # сборка установщиков (.dmg / .msi / .Ap
 ### Поддержать
 
 Если BuildHub оказался полезен — поддержать разработку можно на [Boosty](https://boosty.to/norganjj). 💜
+
+### Лицензия
+
+Проект распространяется под лицензией [MIT](LICENSE) © 2026 NorganJJ.

@@ -37,8 +37,8 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true); setNeedsVerify(false); setResent(false)
     try {
-      const { user, accessToken, refreshToken } = await login(form.email, form.password)
-      setAuth(user, accessToken, refreshToken)
+      const { user, accessToken } = await login(form.email, form.password)
+      setAuth(user, accessToken)
       toast.success(t('login.welcomeBack'))
       navigate('/')
     } catch (err: any) {

@@ -113,7 +113,8 @@
     "viewProfile": "Открыть профиль",
     "metaPublished": "Опубликовано",
     "metaUpdated": "Обновлено",
-    "signInToDownload": "чтобы скачать файлы"
+    "signInToDownload": "чтобы скачать файлы",
+    "downloadFailed": "Не удалось начать загрузку"
   },
   "comments": {
     "title": "Комментарии",
@@ -339,7 +340,17 @@
     "appearanceTitle": "Оформление",
     "appearanceSubtitle": "Выберите тему интерфейса. Тёмная — по умолчанию.",
     "themeDark": "Тёмная",
-    "themeLight": "Светлая"
+    "themeLight": "Светлая",
+    "dangerTitle": "Опасная зона",
+    "dangerSubtitle": "Необратимые действия. Будьте внимательны.",
+    "deleteAccount": "Удалить аккаунт",
+    "deleteAccountHint": "Безвозвратно удалить аккаунт, проекты и файлы.",
+    "deleteConfirmWarning": "Это безвозвратно удалит ваш аккаунт, все проекты, файлы и комментарии. Отменить будет нельзя.",
+    "deleteConfirmPrompt": "Введите ваше имя пользователя {{username}} для подтверждения.",
+    "deleteAccountConfirm": "Удалить навсегда",
+    "deleting": "Удаление…",
+    "accountDeleted": "Аккаунт удалён",
+    "accountDeleteFailed": "Не удалось удалить аккаунт"
   },
   "auth": {
     "continueGithub": "Войти через GitHub",
@@ -443,5 +454,15 @@
     "accountCreated": "Аккаунт создан! Добро пожаловать 🚀",
     "welcomeBack": "С возвращением!",
     "loadUserFailed": "Не удалось загрузить данные пользователя"
+  },
+  "support": {
+    "title": "Поддержка",
+    "intro": "Нашли ошибку или есть вопрос? Напишите мне напрямую в Telegram.",
+    "writeTelegram": "Написать в Telegram ({{handle}})",
+    "templateLabel": "Шаблон сообщения об ошибке",
+    "template": "Отправьте {{handle}} в Telegram\n\nBuildHub — сообщение об ошибке\n\nВерсия приложения: \nПлатформа (Windows / macOS / Linux / Web): \nЧто я делал: \nЧто ожидал: \nЧто произошло: \nТекст ошибки (если есть): ",
+    "copy": "Скопировать",
+    "copied": "Скопировано",
+    "copyFailed": "Не удалось скопировать"
   }
 }

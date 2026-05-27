@@ -107,7 +107,8 @@
     "viewProfile": "Voir le profil",
     "metaPublished": "Publié",
     "metaUpdated": "Mis à jour",
-    "signInToDownload": "pour télécharger les fichiers"
+    "signInToDownload": "pour télécharger les fichiers",
+    "downloadFailed": "Impossible de démarrer le téléchargement"
   },
   "comments": {
     "title": "Commentaires",
@@ -319,7 +320,17 @@
     "appearanceTitle": "Apparence",
     "appearanceSubtitle": "Choisissez le thème de l’interface. Sombre par défaut.",
     "themeDark": "Sombre",
-    "themeLight": "Clair"
+    "themeLight": "Clair",
+    "dangerTitle": "Zone de danger",
+    "dangerSubtitle": "Actions irréversibles. Procédez avec prudence.",
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountHint": "Supprimer définitivement votre compte, projets et fichiers.",
+    "deleteConfirmWarning": "Cela supprimera définitivement votre compte, tous vos projets, fichiers et commentaires. C'est irréversible.",
+    "deleteConfirmPrompt": "Saisissez votre nom d'utilisateur {{username}} pour confirmer.",
+    "deleteAccountConfirm": "Supprimer définitivement",
+    "deleting": "Suppression…",
+    "accountDeleted": "Compte supprimé",
+    "accountDeleteFailed": "Impossible de supprimer le compte"
   },
   "auth": {
     "continueGithub": "Continuer avec GitHub",
@@ -423,5 +434,15 @@
     "accountCreated": "Compte créé ! Bienvenue 🚀",
     "welcomeBack": "Bon retour !",
     "loadUserFailed": "Échec du chargement des données utilisateur"
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Vous avez trouvé un bug ou une question ? Écrivez-moi directement sur Telegram.",
+    "writeTelegram": "Écrire sur Telegram ({{handle}})",
+    "templateLabel": "Modèle de rapport de bug",
+    "template": "Envoyer à {{handle}} sur Telegram\n\nBuildHub — rapport de bug\n\nVersion de l'app : \nPlateforme (Windows / macOS / Linux / Web) : \nCe que j'ai fait : \nCe que j'attendais : \nCe qui s'est passé : \nMessage d'erreur (le cas échéant) : ",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyFailed": "Impossible de copier"
   }
 }

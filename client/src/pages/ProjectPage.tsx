@@ -7,13 +7,12 @@ import { useAuthStore } from '../stores/authStore'
 import { PROJECT_TYPE_ICONS } from '../types'
 import { mediaUrl } from '../utils/mediaUrl'
 import { bannerGradient, avatarGradient } from '../utils/gradient'
-import { handleExternalClick } from '../utils/openExternal'
+import { handleExternalClick, openExternal } from '../utils/openExternal'
+import { getDownloadUrl } from '../api/files'
 import Markdown from '../components/Markdown'
 import CommentsSection from '../components/comments/CommentsSection'
 import ChangelogSection from '../components/project/ChangelogSection'
 import toast from 'react-hot-toast'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 function compact(n: number): string {
   if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k'
@@ -26,7 +25,6 @@ export default function ProjectPage() {
   const { data: project, isLoading, isError } = useProject(slug!)
   const vote = useVote()
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated())
-  const accessToken = useAuthStore((s) => s.accessToken)
   const versions = useVersions(project?.id ?? '').data?.versions ?? []
   const latestVersion = versions[0]?.version
 
@@ -37,6 +35,16 @@ export default function ProjectPage() {
     if (!isAuthenticated) { toast.error(t('project.signInToVote')); return }
     const newValue = project.userVote === value ? 0 : value
     vote.mutate({ projectId: project.id, value: newValue as any })
+  }
+
+  const handleDownload = async (fileId: string) => {
+    if (!isAuthenticated) { toast.error(t('project.signInToVote')); return }
+    try {
+      const url = await getDownloadUrl(fileId)
+      await openExternal(url)
+    } catch {
+      toast.error(t('project.downloadFailed'))
+    }
   }
 
   const bannerUrl = project.bannerUrl ? mediaUrl(project.bannerUrl) : null
@@ -154,7 +162,7 @@ export default function ProjectPage() {
                 {isAuthenticated ? (
                   <div className="divide-y divide-gray-800">
                     {project.files.map((file, i) => (
-                      <a key={file.id} href={`${API_URL}/api/files/download/${file.id}?token=${encodeURIComponent(accessToken || '')}`} className="block px-5 py-3 hover:bg-gray-800/40 group cursor-pointer">
+                      <button key={file.id} type="button" onClick={() => handleDownload(file.id)} className="block w-full text-left px-5 py-3 hover:bg-gray-800/40 group cursor-pointer">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-200">{t(`platform.${file.platform}`)}</span>
                           <span className="text-[11px] text-gray-500 font-mono">v{file.version}</span>
@@ -166,7 +174,7 @@ export default function ProjectPage() {
                             <Download size={12} />
                           </span>
                         </div>
-                      </a>
+                      </button>
                     ))}
                   </div>
                 ) : (
