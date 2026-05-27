@@ -1,6 +1,6 @@
 {
   "name": "buildhub-backend",
-  "version": "0.4.9-beta",
+  "version": "0.5.0",
   "description": "BuildHub API — Fastify + TypeScript + PostgreSQL",
   "license": "MIT",
   "main": "dist/index.js",

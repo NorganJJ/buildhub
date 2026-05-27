@@ -2,6 +2,22 @@
 
 All notable changes to BuildHub are documented here. / Все значимые изменения BuildHub.
 
+## [0.5.0] — 2026-05-27
+
+First release aimed at public distribution — desktop installers + a deployable backend. / Первый релиз под публичное распространение — десктоп-инсталляторы и разворачиваемый бэкенд.
+
+### Added · Добавлено
+- **Desktop installer pipeline.** A GitHub Actions workflow builds the Tauri client for macOS and Windows on a runner matrix and attaches the installers to a release.
+  *Конвейер сборки инсталляторов.* GitHub Actions собирает Tauri-клиент под macOS и Windows на matrix-раннерах и прикладывает инсталляторы к релизу.
+- **Production deployment config.** `deploy/docker-compose.prod.yml` (PostgreSQL + API, no Redis, `restart: unless-stopped`, API bound to localhost behind nginx) plus `POSTGRES_*` in the production env template.
+  *Конфигурация для прод-деплоя.* `deploy/docker-compose.prod.yml` (PostgreSQL + API, без Redis, `restart: unless-stopped`, API только на localhost за nginx) и переменные `POSTGRES_*` в шаблоне прод-окружения.
+
+### Changed · Изменено
+- **Desktop-aware CORS.** The API now accepts the packaged Tauri origins (`tauri://localhost`, `https://tauri.localhost`) alongside the web client origin(s) from `CLIENT_URL`.
+  *CORS с учётом десктопа.* API принимает origin'ы установленного Tauri-приложения (`tauri://localhost`, `https://tauri.localhost`) наряду с web-клиентом из `CLIENT_URL`.
+- **Cross-site auth cookies.** In production the refresh/OAuth cookies use `SameSite=None; Secure` so they survive cross-site requests from the desktop app (`Lax` is kept in development).
+  *Cross-site auth-cookie.* В проде refresh/OAuth-cookie используют `SameSite=None; Secure`, чтобы доходить из десктоп-приложения (в dev остаётся `Lax`).
+
 ## [0.4.9-beta] — 2026-05-27
 
 ### Security · Безопасность
