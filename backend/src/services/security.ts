@@ -32,10 +32,14 @@ export const OAUTH_STATE_COOKIE = 'bh_oauth_state'
 
 const isProd = process.env.NODE_ENV === 'production'
 
+// В проде клиент бывает на другом origin, чем API: web на своём домене и,
+// главное, десктоп Tauri шлёт запросы с origin tauri://localhost (cross-site).
+// Cross-site cookie доставляется только при SameSite=None + Secure (требует HTTPS).
+// В dev (http://localhost) Secure ставить нельзя, поэтому остаёмся на Lax.
 const baseCookie = {
   httpOnly: true,
-  secure: isProd, // в dev по http Secure не ставим, иначе cookie не сохранится
-  sameSite: 'lax' as const,
+  secure: isProd,
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   path: '/api/auth',
 }
 

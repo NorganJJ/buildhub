@@ -46,9 +46,25 @@ export async function buildApp(): Promise<FastifyInstance> {
     referrerPolicy: { policy: 'no-referrer' },
   })
 
-  // CORS
+  // CORS. Разрешаем web-клиент(ы) из CLIENT_URL (можно несколько через запятую)
+  // и origin'ы установленного Tauri-приложения:
+  //   tauri://localhost        — macOS / Linux
+  //   https://tauri.localhost  — Windows
+  const webOrigins = (process.env.CLIENT_URL || 'http://localhost:1420')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean)
+  const allowedOrigins = new Set([
+    ...webOrigins,
+    'tauri://localhost',
+    'https://tauri.localhost',
+  ])
   await app.register(cors, {
-    origin: process.env.CLIENT_URL || 'http://localhost:1420',
+    // Запросы без Origin (curl, server-to-server) пропускаем; иначе сверяем со списком.
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.has(origin)) return cb(null, true)
+      cb(new Error('Not allowed by CORS'), false)
+    },
     credentials: true,
   })
 

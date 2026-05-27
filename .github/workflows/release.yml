@@ -1,0 +1,76 @@
+name: Build desktop installers
+
+# Собирает инсталляторы клиента (Tauri) под macOS и Windows и прикладывает их
+# к GitHub Release. Запуск — вручную (workflow_dispatch) или при пуше тега vX.Y.Z.
+#
+# ВАЖНО: адрес прод-API «запекается» в сборку через VITE_API_URL.
+# Задайте его в Settings → Secrets and variables → Actions → Variables как
+# репозиторную переменную VITE_API_URL (например https://api.buildhub.example.com).
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    permissions:
+      contents: write # нужно для создания/обновления Release и загрузки артефактов
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
+          - platform: windows-latest
+            args: ""
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache cargo
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: client/src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Прод-адрес API, попадает в сборку фронтенда (Vite).
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          # --- Подпись (опционально; пока секреты не заданы — сборка не подписывается) ---
+          # macOS (Apple Developer ID + нотаризация):
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Windows (code-signing):
+          # WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          # WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        with:
+          projectPath: client
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', github.run_number) }}
+          releaseName: "BuildHub ${{ github.ref_type == 'tag' && github.ref_name || github.run_number }}"
+          releaseBody: "Desktop installers for macOS and Windows."
+          releaseDraft: true
+          prerelease: true
+          args: ${{ matrix.args }}

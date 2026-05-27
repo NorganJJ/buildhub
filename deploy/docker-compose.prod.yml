@@ -1,0 +1,46 @@
+# BuildHub — production stack: PostgreSQL + backend API.
+# Redis is NOT included (the backend does not use it).
+# nginx + TLS run on the host (see deploy/nginx.conf); the API is published only
+# on localhost so only the reverse proxy can reach it.
+#
+# Usage (from the repo root):
+#   cp backend/.env.production.example backend/.env.production   # then fill it in
+#   docker compose -f deploy/docker-compose.prod.yml up -d --build
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: buildhub_db_prod
+    restart: unless-stopped
+    # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB берутся из env_file
+    # (образ postgres читает их из окружения при первой инициализации).
+    env_file:
+      - ../backend/.env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    container_name: buildhub_api
+    restart: unless-stopped
+    env_file:
+      - ../backend/.env.production
+    depends_on:
+      db:
+        condition: service_healthy
+    # Доступен только локально — наружу проксирует nginx с хоста.
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - uploads:/app/backend/uploads
+
+volumes:
+  postgres_data:
+  uploads:
