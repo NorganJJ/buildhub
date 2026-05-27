@@ -1,0 +1,15 @@
+{
+  "name": "buildhub",
+  "version": "0.4.5-beta",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "client"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:client": "npm run dev --workspace=client",
+    "build:backend": "npm run build --workspace=backend",
+    "install:all": "npm install && npm install --workspace=backend && npm install --workspace=client"
+  }
+}
