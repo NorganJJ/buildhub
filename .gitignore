@@ -29,6 +29,9 @@ Thumbs.db
 # Uploads (local dev only)
 backend/uploads/
 
+# DB backups (created on the server by the db-backup service)
+backups/
+
 # Prisma
 backend/prisma/migrations/dev.db
 
