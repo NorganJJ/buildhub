@@ -4,6 +4,9 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY || ''
 const FROM_EMAIL = process.env.FROM_EMAIL || 'BuildHub <noreply@buildhub.app>'
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:1420'
+// Базовый URL API — на него ведёт ссылка подтверждения (бэкенд проверяет токен
+// и редиректит на страницу SPA с ?success=1 / ?error=).
+const API_URL = process.env.API_URL || 'http://localhost:3001'
 
 export async function sendEmail(to: string, subject: string, html: string) {
   if (!RESEND_API_KEY) {
@@ -28,7 +31,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const url = `${CLIENT_URL}/verify-email?token=${token}`
+  const url = `${API_URL}/api/auth/verify-email?token=${token}`
   await sendEmail(
     email,
     'Confirm your BuildHub account',
