@@ -2,6 +2,22 @@
 
 All notable changes to BuildHub are documented here. / Все значимые изменения BuildHub.
 
+## [1.0.0] — 2026-05-28
+
+First stable release. / Первый стабильный релиз.
+
+### Added · Добавлено
+- **Admin role & moderation.** Users can be marked as administrators; an admin can edit and delete any project, edit/delete any comment, and delete any user account. Moderation controls surface in the UI (project page, comments) for admins. Create the admin with `npm run create-admin` (password supplied via `ADMIN_PASSWORD`).
+  *Роль администратора и модерация.* Пользователя можно сделать администратором; админ может редактировать и удалять любой проект, редактировать/удалять любой комментарий и удалять любого пользователя. Элементы модерации появляются в интерфейсе (страница проекта, комментарии). Админ создаётся командой `npm run create-admin` (пароль — через `ADMIN_PASSWORD`).
+- **Per-post upload limit.** All distributable files within a single post must total under **500 MB**; uploads beyond the cap are rejected.
+  *Лимит на размер поста.* Суммарный размер всех дистрибутивов в одном посте не может превышать **500 МБ**; превышение отклоняется.
+
+### Changed · Изменено
+- **Clean start.** Demo/test users and projects were removed from the seed; a fresh deployment starts with an empty catalogue and a single admin account.
+  *Чистый старт.* Демо/тестовые пользователи и проекты убраны из сидов; свежий деплой стартует с пустым каталогом и единственным аккаунтом администратора.
+- **Migration baseline fixed.** All schema changes that were previously applied only via `db push` (file scan status, project versions, creator fields, admin flag) are now captured in a migration, so `prisma migrate deploy` builds the correct schema in production.
+  *Исправлена база миграций.* Все изменения схемы, ранее применявшиеся только через `db push` (статус скана файлов, версии проектов, поля автора, флаг администратора), теперь зафиксированы в миграции — `prisma migrate deploy` корректно собирает схему в проде.
+
 ## [0.5.0] — 2026-05-27
 
 First release aimed at public distribution — desktop installers + a deployable backend. / Первый релиз под публичное распространение — десктоп-инсталляторы и разворачиваемый бэкенд.

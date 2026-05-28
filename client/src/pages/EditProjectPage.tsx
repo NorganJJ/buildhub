@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useUpdateProject, useMyProjects, useUploadFile } from '../api/projects'
+import { useUpdateProject, useMyProjects, useUploadFile, useAdminProject } from '../api/projects'
+import { useAuthStore } from '../stores/authStore'
 import { useUploadProjectIcon, useUploadProjectBanner, useUploadScreenshot, useDeleteScreenshot } from '../api/images'
 import { ProjectType } from '../types'
 import { Upload, ImagePlus, X, Camera } from 'lucide-react'
@@ -18,7 +19,11 @@ export default function EditProjectPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: projects } = useMyProjects()
-  const project = projects?.find((p) => p.id === id)
+  const isAdmin = useAuthStore((s) => s.user?.isAdmin === true)
+  const ownProject = projects?.find((p) => p.id === id)
+  // Если проект не среди своих, но пользователь — админ, грузим его напрямую.
+  const { data: adminProject } = useAdminProject(id!, isAdmin && !!projects && !ownProject)
+  const project = ownProject ?? adminProject
   const update = useUpdateProject(id!)
 
   const [form, setForm] = useState({

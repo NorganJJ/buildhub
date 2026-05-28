@@ -444,5 +444,14 @@
     "copy": "Copier",
     "copied": "Copié",
     "copyFailed": "Impossible de copier"
+  },
+  "admin": {
+    "panelTitle": "Modération (admin)",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "badge": "admin",
+    "deleteProjectConfirm": "Supprimer le projet « {{title}} » ? C'est irréversible.",
+    "projectDeleted": "Projet supprimé",
+    "actionFailed": "Échec de l'action"
   }
 }

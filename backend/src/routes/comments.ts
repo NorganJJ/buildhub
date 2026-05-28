@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../config/prisma'
 import { authenticate, optionalAuthenticate } from '../middleware/authenticate'
+import { canModify } from '../middleware/admin'
 
 const createSchema = z.object({
   body: z.string().min(1).max(2000).trim(),
@@ -114,7 +115,7 @@ export async function commentRoutes(app: FastifyInstance) {
 
     const comment = await prisma.comment.findUnique({ where: { id } })
     if (!comment) return reply.status(404).send({ error: 'Comment not found' })
-    if (comment.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, comment.authorId))) return reply.status(403).send({ error: 'Forbidden' })
     if (comment.isDeleted) return reply.status(400).send({ error: 'Cannot edit deleted comment' })
 
     const updated = await prisma.comment.update({
@@ -136,7 +137,7 @@ export async function commentRoutes(app: FastifyInstance) {
       include: { _count: { select: { replies: true } } },
     })
     if (!comment) return reply.status(404).send({ error: 'Comment not found' })
-    if (comment.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, comment.authorId))) return reply.status(403).send({ error: 'Forbidden' })
 
     // Если есть ответы — мягкое удаление (тело скрывается, структура сохраняется)
     // Если ответов нет — физическое удаление

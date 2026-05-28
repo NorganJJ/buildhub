@@ -1,12 +1,25 @@
 import { FastifyInstance } from 'fastify'
 import { prisma } from '../config/prisma'
 import { authenticate } from '../middleware/authenticate'
+import { canModify } from '../middleware/admin'
 import { signDownload, verifyDownload } from '../services/security'
 import { isAllowedExtension, looksDisallowedByMagic } from '../services/uploadValidation'
 import { scanFile } from '../services/fileScan'
 import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
+
+// Суммарный лимит на размер всех файлов одного проекта (поста).
+const POST_MAX_BYTES = 500 * 1024 * 1024 // 500 MB
+
+// Сумма размеров уже загруженных файлов проекта (в байтах).
+async function projectFilesTotal(projectId: string): Promise<number> {
+  const agg = await prisma.projectFile.aggregate({
+    where: { projectId },
+    _sum: { fileSize: true },
+  })
+  return Number(agg._sum.fileSize ?? 0n)
+}
 
 export async function fileRoutes(app: FastifyInstance) {
 
@@ -17,7 +30,7 @@ export async function fileRoutes(app: FastifyInstance) {
 
     const project = await prisma.project.findUnique({ where: { id: projectId } })
     if (!project) return reply.status(404).send({ error: 'Project not found' })
-    if (project.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, project.authorId))) return reply.status(403).send({ error: 'Forbidden' })
 
     const data = await req.file()
     if (!data) return reply.status(400).send({ error: 'No file provided' })
@@ -25,6 +38,12 @@ export async function fileRoutes(app: FastifyInstance) {
     // Allowlist расширений
     if (!isAllowedExtension(data.filename)) {
       return reply.status(400).send({ error: 'File type not allowed' })
+    }
+
+    // Лимит суммарного размера файлов поста (500 МБ). Быстрый отказ, если уже на пределе.
+    const existingTotal = await projectFilesTotal(projectId)
+    if (existingTotal >= POST_MAX_BYTES) {
+      return reply.status(413).send({ error: 'Post file size limit reached (500 MB total)' })
     }
 
     const uploadDir = path.resolve(process.env.STORAGE_LOCAL_PATH || './uploads', projectId)
@@ -58,6 +77,14 @@ export async function fileRoutes(app: FastifyInstance) {
     if (looksDisallowedByMagic(head)) {
       fs.unlinkSync(filePath)
       return reply.status(400).send({ error: 'File content not allowed' })
+    }
+
+    // Точная проверка суммарного лимита поста с учётом только что загруженного файла.
+    if (existingTotal + fileSize > POST_MAX_BYTES) {
+      fs.unlinkSync(filePath)
+      return reply.status(413).send({
+        error: 'Post file size limit exceeded: all files in a post must total under 500 MB',
+      })
     }
 
     // Антивирус-скан (каркас: 'clean', пока сканер не настроен)

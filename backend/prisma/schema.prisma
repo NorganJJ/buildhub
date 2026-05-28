@@ -18,6 +18,7 @@ model User {
   website             String?
   githubUrl           String?
   isVerified          Boolean   @default(false)
+  isAdmin             Boolean   @default(false)
   emailVerifyToken    String?
   emailVerifyExpires  DateTime?
   resetToken          String?

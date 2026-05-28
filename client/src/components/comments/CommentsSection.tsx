@@ -121,6 +121,7 @@ function CommentItem({ comment, projectId, depth = 0 }: { comment: Comment; proj
   const [showReplies, setShowReplies] = useState(true)
 
   const isOwn = user?.id === comment.authorId
+  const isAdmin = user?.isAdmin === true
   const isDeleted = comment.isDeleted
   const hasReplies = comment.replies.length > 0
   const MAX_DEPTH = 4
@@ -166,16 +167,16 @@ function CommentItem({ comment, projectId, depth = 0 }: { comment: Comment; proj
                 </button>
               )}
               {isOwn && !isDeleted && (
-                <>
-                  <button onClick={() => setEditing(true)}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800 transition-colors">
-                    <Pencil size={12} /> {t('comments.edit')}
-                  </button>
-                  <button onClick={handleDelete} disabled={deleteComment.isPending}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 px-2 py-1 rounded hover:bg-gray-800 transition-colors">
-                    <Trash2 size={12} /> {t('comments.delete')}
-                  </button>
-                </>
+                <button onClick={() => setEditing(true)}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800 transition-colors">
+                  <Pencil size={12} /> {t('comments.edit')}
+                </button>
+              )}
+              {(isOwn || isAdmin) && !isDeleted && (
+                <button onClick={handleDelete} disabled={deleteComment.isPending}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 px-2 py-1 rounded hover:bg-gray-800 transition-colors">
+                  <Trash2 size={12} /> {t('comments.delete')}{!isOwn && isAdmin ? ` (${t('admin.badge')})` : ''}
+                </button>
               )}
             </div>
           )}

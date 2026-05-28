@@ -434,5 +434,14 @@
     "copy": "复制",
     "copied": "已复制",
     "copyFailed": "复制失败"
+  },
+  "admin": {
+    "panelTitle": "管理员审核",
+    "edit": "编辑",
+    "delete": "删除",
+    "badge": "管理员",
+    "deleteProjectConfirm": "删除项目「{{title}}」？此操作无法撤销。",
+    "projectDeleted": "项目已删除",
+    "actionFailed": "操作失败"
   }
 }

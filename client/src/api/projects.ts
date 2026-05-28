@@ -56,6 +56,18 @@ export const useMyProjects = () =>
     staleTime: 0,
   })
 
+// Загрузка любого проекта по id для админ-редактирования (доступно только админам).
+export const useAdminProject = (id: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ['admin-project', id],
+    queryFn: async () => {
+      const { data } = await api.get<Project>(`/projects/admin/${id}`)
+      return data
+    },
+    enabled: enabled && !!id,
+    staleTime: 0,
+  })
+
 export const useCreateProject = () => {
   const qc = useQueryClient()
   return useMutation({

@@ -444,5 +444,14 @@
     "copy": "Copy",
     "copied": "Copied",
     "copyFailed": "Couldn't copy"
+  },
+  "admin": {
+    "panelTitle": "Admin moderation",
+    "edit": "Edit",
+    "delete": "Delete",
+    "badge": "admin",
+    "deleteProjectConfirm": "Delete project \"{{title}}\"? This cannot be undone.",
+    "projectDeleted": "Project deleted",
+    "actionFailed": "Action failed"
   }
 }

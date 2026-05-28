@@ -1,6 +1,6 @@
 [package]
 name = "buildhub"
-version = "0.5.0"
+version = "1.0.0"
 description = "BuildHub — app catalogue platform"
 authors = ["NorganJJ"]
 license = "MIT"

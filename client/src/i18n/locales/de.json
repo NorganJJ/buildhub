@@ -444,5 +444,14 @@
     "copy": "Kopieren",
     "copied": "Kopiert",
     "copyFailed": "Konnte nicht kopieren"
+  },
+  "admin": {
+    "panelTitle": "Moderation (Admin)",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "badge": "Admin",
+    "deleteProjectConfirm": "Projekt „{{title}}“ löschen? Das kann nicht rückgängig gemacht werden.",
+    "projectDeleted": "Projekt gelöscht",
+    "actionFailed": "Aktion fehlgeschlagen"
   }
 }

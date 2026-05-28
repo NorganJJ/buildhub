@@ -11,6 +11,7 @@ export interface User {
   website?: string
   githubUrl?: string
   isVerified: boolean
+  isAdmin?: boolean
   createdAt: string
 }
 

@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../config/prisma'
 import { authenticate, optionalAuthenticate } from '../middleware/authenticate'
+import { canModify, requireAdmin } from '../middleware/admin'
 import { generateSlug } from '../utils/slug'
 import { recalcWilsonScore } from '../services/wilsonScore'
 
@@ -233,6 +234,21 @@ export async function projectRoutes(app: FastifyInstance) {
     return reply.send({ ...project, files, likes, dislikes, userVote, authorProjectCount })
   })
 
+  // GET /api/projects/admin/:id — получить любой проект по id (для админ-редактирования)
+  app.get('/admin/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const { id } = req.params as { id: string }
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        author: { select: { id: true, username: true, displayName: true, avatarUrl: true, bio: true, createdAt: true } },
+        files: true,
+      },
+    })
+    if (!project) return reply.status(404).send({ error: 'Project not found' })
+    const files = project.files.map((f) => ({ ...f, fileSize: Number(f.fileSize) }))
+    return reply.send({ ...project, files })
+  })
+
   // POST /api/projects
   app.post('/', { preHandler: authenticate }, async (req, reply) => {
     const body = createProjectSchema.safeParse(req.body)
@@ -254,7 +270,7 @@ export async function projectRoutes(app: FastifyInstance) {
     const userId = (req as any).userId
     const project = await prisma.project.findUnique({ where: { id } })
     if (!project) return reply.status(404).send({ error: 'Project not found' })
-    if (project.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, project.authorId))) return reply.status(403).send({ error: 'Forbidden' })
     const updated = await prisma.project.update({ where: { id }, data: { status: 'PUBLISHED' } })
     return reply.send(updated)
   })
@@ -265,7 +281,7 @@ export async function projectRoutes(app: FastifyInstance) {
     const userId = (req as any).userId
     const project = await prisma.project.findUnique({ where: { id } })
     if (!project) return reply.status(404).send({ error: 'Project not found' })
-    if (project.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, project.authorId))) return reply.status(403).send({ error: 'Forbidden' })
 
     const body = createProjectSchema.partial().safeParse(req.body)
     if (!body.success) return reply.status(400).send({ error: 'Validation failed' })
@@ -280,7 +296,7 @@ export async function projectRoutes(app: FastifyInstance) {
     const userId = (req as any).userId
     const project = await prisma.project.findUnique({ where: { id } })
     if (!project) return reply.status(404).send({ error: 'Project not found' })
-    if (project.authorId !== userId) return reply.status(403).send({ error: 'Forbidden' })
+    if (!(await canModify(userId, project.authorId))) return reply.status(403).send({ error: 'Forbidden' })
     await prisma.project.delete({ where: { id } })
     return reply.send({ success: true })
   })

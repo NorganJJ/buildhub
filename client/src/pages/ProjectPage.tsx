@@ -1,7 +1,7 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ThumbsUp, ThumbsDown, Download, Globe, Github, ChevronRight, Calendar, Tag, Users, UserRound, TrendingUp } from 'lucide-react'
-import { useProject, useVote } from '../api/projects'
+import { ThumbsUp, ThumbsDown, Download, Globe, Github, ChevronRight, Calendar, Tag, Users, UserRound, TrendingUp, ShieldAlert, Pencil, Trash2 } from 'lucide-react'
+import { useProject, useVote, useDeleteProject } from '../api/projects'
 import { useVersions } from '../api/versions'
 import { useAuthStore } from '../stores/authStore'
 import { PROJECT_TYPE_ICONS } from '../types'
@@ -24,12 +24,26 @@ export default function ProjectPage() {
   const { slug } = useParams<{ slug: string }>()
   const { data: project, isLoading, isError } = useProject(slug!)
   const vote = useVote()
+  const navigate = useNavigate()
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated())
+  const isAdmin = useAuthStore((s) => s.user?.isAdmin === true)
+  const deleteProject = useDeleteProject()
   const versions = useVersions(project?.id ?? '').data?.versions ?? []
   const latestVersion = versions[0]?.version
 
   if (isLoading) return <div className="text-center py-20 text-gray-500">{t('project.loading')}</div>
   if (isError || !project) return <div className="text-center py-20 text-red-400">{t('project.notFound')}</div>
+
+  const handleAdminDelete = async () => {
+    if (!window.confirm(t('admin.deleteProjectConfirm', { title: project.title }))) return
+    try {
+      await deleteProject.mutateAsync(project.id)
+      toast.success(t('admin.projectDeleted'))
+      navigate('/')
+    } catch {
+      toast.error(t('admin.actionFailed'))
+    }
+  }
 
   const handleVote = (value: 1 | -1) => {
     if (!isAuthenticated) { toast.error(t('project.signInToVote')); return }
@@ -153,6 +167,21 @@ export default function ProjectPage() {
 
           {/* Right sidebar */}
           <aside className="space-y-5">
+            {isAdmin && (
+              <div className="bg-amber-500/[0.04] border border-amber-500/30 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2 mb-3"><ShieldAlert size={14} /> {t('admin.panelTitle')}</h3>
+                <div className="flex gap-2">
+                  <Link to={`/my-projects/${project.id}/edit`}
+                    className="flex-1 h-9 rounded-lg bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-200 text-sm flex items-center justify-center gap-2 transition-colors">
+                    <Pencil size={13} /> {t('admin.edit')}
+                  </Link>
+                  <button onClick={handleAdminDelete} disabled={deleteProject.isPending}
+                    className="flex-1 h-9 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm flex items-center justify-center gap-2 transition-colors">
+                    <Trash2 size={13} /> {t('admin.delete')}
+                  </button>
+                </div>
+              </div>
+            )}
             {project.files && project.files.length > 0 && (
               <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                 <div className="px-5 py-3.5 border-b border-gray-800 flex items-center justify-between">

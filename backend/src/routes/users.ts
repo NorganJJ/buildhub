@@ -2,9 +2,38 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../config/prisma'
 import { authenticate } from '../middleware/authenticate'
+import { requireAdmin } from '../middleware/admin'
 import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
+
+// Удаляет пользователя вместе с его данными: файлы проектов и аватар с диска,
+// затем каскадное удаление в БД (проекты, файлы, голоса, комментарии, oauth, токены).
+async function purgeUserData(userId: string, log: { error: (e: unknown) => void }): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { projects: { select: { id: true } } },
+  })
+  if (!user) return false
+
+  const uploadsRoot = path.resolve(process.env.STORAGE_LOCAL_PATH || './uploads')
+  const safeRm = (p: string) => {
+    try {
+      const abs = path.resolve(p)
+      if (abs.startsWith(uploadsRoot + path.sep)) fs.rmSync(abs, { recursive: true, force: true })
+    } catch (e) { log.error(e) }
+  }
+  for (const p of user.projects) {
+    safeRm(path.join(uploadsRoot, p.id))
+    safeRm(path.join(uploadsRoot, 'projects', p.id))
+  }
+  if (user.avatarUrl?.startsWith('/uploads/')) {
+    safeRm(path.join(uploadsRoot, user.avatarUrl.replace(/^\/uploads\//, '')))
+  }
+
+  await prisma.user.delete({ where: { id: userId } })
+  return true
+}
 
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(60).optional(),
@@ -61,7 +90,7 @@ export async function userRoutes(app: FastifyInstance) {
     const user = await prisma.user.update({
       where: { id: userId },
       data: body.data,
-      select: { id: true, username: true, email: true, displayName: true, avatarUrl: true, bio: true, website: true, githubUrl: true, isVerified: true, createdAt: true },
+      select: { id: true, username: true, email: true, displayName: true, avatarUrl: true, bio: true, website: true, githubUrl: true, isVerified: true, isAdmin: true, createdAt: true },
     })
     return reply.send(user)
   })
@@ -69,31 +98,18 @@ export async function userRoutes(app: FastifyInstance) {
   // DELETE /api/users/me — удаление аккаунта и всех данных (GDPR)
   app.delete('/me', { preHandler: authenticate }, async (req, reply) => {
     const userId = (req as any).userId
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { projects: { select: { id: true } } },
-    })
-    if (!user) return reply.status(404).send({ error: 'User not found' })
+    const ok = await purgeUserData(userId, req.log)
+    if (!ok) return reply.status(404).send({ error: 'User not found' })
+    return reply.send({ success: true })
+  })
 
-    const uploadsRoot = path.resolve(process.env.STORAGE_LOCAL_PATH || './uploads')
-    const safeRm = (p: string) => {
-      try {
-        const abs = path.resolve(p)
-        if (abs.startsWith(uploadsRoot + path.sep)) fs.rmSync(abs, { recursive: true, force: true })
-      } catch (e) { req.log.error(e) }
-    }
-    // Файлы проектов (дистрибутивы + изображения) с диска
-    for (const p of user.projects) {
-      safeRm(path.join(uploadsRoot, p.id))
-      safeRm(path.join(uploadsRoot, 'projects', p.id))
-    }
-    // Аватар
-    if (user.avatarUrl?.startsWith('/uploads/')) {
-      safeRm(path.join(uploadsRoot, user.avatarUrl.replace(/^\/uploads\//, '')))
-    }
-
-    // Каскадно удаляет проекты, файлы, голоса, комментарии, oauth, refresh-токены
-    await prisma.user.delete({ where: { id: userId } })
+  // DELETE /api/users/:id — удаление любого пользователя администратором
+  app.delete('/:id', { preHandler: [authenticate, requireAdmin] }, async (req, reply) => {
+    const { id } = req.params as { id: string }
+    const adminId = (req as any).userId
+    if (id === adminId) return reply.status(400).send({ error: 'Use account deletion in settings to remove your own account' })
+    const ok = await purgeUserData(id, req.log)
+    if (!ok) return reply.status(404).send({ error: 'User not found' })
     return reply.send({ success: true })
   })
 
@@ -108,7 +124,7 @@ export async function userRoutes(app: FastifyInstance) {
       const user = await prisma.user.update({
         where: { id: userId },
         data: { avatarUrl },
-        select: { id: true, username: true, email: true, displayName: true, avatarUrl: true, bio: true, website: true, githubUrl: true, isVerified: true, createdAt: true },
+        select: { id: true, username: true, email: true, displayName: true, avatarUrl: true, bio: true, website: true, githubUrl: true, isVerified: true, isAdmin: true, createdAt: true },
       })
       return reply.send(user)
     } catch (err: any) {
