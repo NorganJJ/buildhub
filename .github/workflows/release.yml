@@ -51,14 +51,11 @@ jobs:
         env:
           # Прод-адрес API, попадает в сборку фронтенда (Vite).
           VITE_API_URL: ${{ vars.VITE_API_URL }}
-          # macOS подпись + нотаризация — заработают, как только появятся секреты
-          # APPLE_* (Developer ID). Пока их нет — сборка будет неподписанной.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # ВНИМАНИЕ: переменные APPLE_* здесь НЕ задаём специально.
+          # Если их передать пустыми (без Developer ID), Tauri пытается импортировать
+          # пустой сертификат и сборка падает. Для подписи в будущем добавьте секреты
+          # APPLE_CERTIFICATE / APPLE_CERTIFICATE_PASSWORD / APPLE_SIGNING_IDENTITY /
+          # APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID и пропишите их сюда в env.
         with:
           projectPath: client
           args: ${{ matrix.args }}
