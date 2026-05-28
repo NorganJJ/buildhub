@@ -1,26 +1,19 @@
 name: Build desktop installers
 
-# Собирает инсталляторы клиента (Tauri) под macOS и Windows и прикладывает их
-# к GitHub Release. Запуск — вручную (workflow_dispatch) или при пуше тега vX.Y.Z.
+# Собирает инсталляторы клиента (Tauri) под macOS (.dmg) и Windows (.msi/.exe)
+# и выкладывает их как артефакты сборки (скачать можно со страницы запуска в Actions).
 #
 # ВАЖНО: адрес прод-API «запекается» в сборку через VITE_API_URL.
 # Задайте его в Settings → Secrets and variables → Actions → Variables как
-# репозиторную переменную VITE_API_URL (например https://api.buildhub.example.com).
-
-# Запуск только вручную: инсталляторы нужно собирать ПОСЛЕ деплоя бэкенда и
-# установки переменной VITE_API_URL, иначе в сборку попадёт неверный адрес API.
+# репозиторную переменную VITE_API_URL (например https://buildhuber.ru).
+#
+# Запуск только вручную: собирать нужно ПОСЛЕ деплоя бэкенда и установки
+# переменной VITE_API_URL, иначе в сборку попадёт неверный адрес API.
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag to attach installers to (e.g. v1.0.0)"
-        required: true
-        default: "v1.0.0"
 
 jobs:
   build:
-    permissions:
-      contents: write # нужно для создания/обновления Release и загрузки артефактов
     strategy:
       fail-fast: false
       matrix:
@@ -53,28 +46,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and release Tauri app
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Прод-адрес API, попадает в сборку фронтенда (Vite).
           VITE_API_URL: ${{ vars.VITE_API_URL }}
-          # macOS подпись + нотаризация (Apple Developer ID).
-          # Если секреты пустые/не заданы — tauri-action просто соберёт без подписи.
+          # macOS подпись + нотаризация — заработают, как только появятся секреты
+          # APPLE_* (Developer ID). Пока их нет — сборка будет неподписанной.
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          # Windows code-signing — пока нет сертификата, оставляем без подписи.
-          # WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-          # WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         with:
           projectPath: client
-          tagName: ${{ github.event.inputs.tag }}
-          releaseName: "BuildHub ${{ github.event.inputs.tag }}"
-          releaseBody: "Desktop installers for macOS and Windows."
-          releaseDraft: true
-          prerelease: false
           args: ${{ matrix.args }}
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildhub-installers-${{ matrix.platform }}
+          if-no-files-found: ignore
+          path: |
+            client/src-tauri/target/**/release/bundle/dmg/*.dmg
+            client/src-tauri/target/**/release/bundle/msi/*.msi
+            client/src-tauri/target/**/release/bundle/nsis/*.exe
