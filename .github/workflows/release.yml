@@ -74,7 +74,7 @@ jobs:
 
       # Прикрепляем инсталляторы к существующему релизу v1.0.0 (постоянные ссылки).
       - name: Attach installers to release v1.0.0
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v1.0.0
           files: |
