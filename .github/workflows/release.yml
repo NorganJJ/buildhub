@@ -49,7 +49,7 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v1
         env:
           # Прод-адрес API, попадает в сборку фронтенда (Vite).
           VITE_API_URL: ${{ vars.VITE_API_URL }}
